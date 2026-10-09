@@ -1,7 +1,7 @@
 import shutil
 import json
 from pathlib import Path
-from uuid import uuid4
+from uuid import UUID, uuid4
 
 from fastapi import APIRouter, File, HTTPException, Query, UploadFile, status
 
@@ -74,7 +74,8 @@ def upload_file(file: UploadFile = File(...)) -> dict:
 
 
 @router.get("/files/{file_id}/")
-def get_file(file_id: str) -> dict:
+def get_file(file_id: UUID) -> dict:
+    file_id = str(file_id)
     file_directory(file_id)
     with SessionLocal() as db:
         record = db.get(FileRecord, file_id)
@@ -85,10 +86,11 @@ def get_file(file_id: str) -> dict:
 
 @router.get("/files/{file_id}/measurements/")
 def get_measurements(
-    file_id: str,
+    file_id: UUID,
     offset: int = Query(0, ge=0),
     limit: int = Query(100, ge=1, le=1000),
 ) -> dict:
+    file_id = str(file_id)
     file_directory(file_id)
     with SessionLocal() as db:
         record = db.get(FileRecord, file_id)

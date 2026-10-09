@@ -21,9 +21,14 @@ def validate_zip(archive_path: Path) -> str:
             if len(shape_paths) != 1:
                 raise GeospatialInputError("The ZIP must contain exactly one .shp file.")
             shape_stem = Path(shape_paths[0]).with_suffix("").as_posix().lower()
-            siblings = {Path(item.filename).with_suffix("").as_posix().lower(): Path(item.filename).suffix.lower() for item in files}
-            extensions = {extension for stem, extension in siblings.items() if stem == shape_stem}
-            missing = SHAPEFILE_REQUIRED - extensions
+            extensions = [
+                Path(item.filename).suffix.lower()
+                for item in files
+                if Path(item.filename).with_suffix("").as_posix().lower() == shape_stem
+            ]
+            if len(extensions) != len(set(extensions)):
+                raise GeospatialInputError("The ZIP contains duplicate Shapefile sidecars.")
+            missing = SHAPEFILE_REQUIRED - set(extensions)
             if missing:
                 raise GeospatialInputError(
                     "The Shapefile is missing required sidecar(s): " + ", ".join(sorted(missing))

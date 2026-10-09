@@ -19,6 +19,17 @@ uvicorn app.main:app --reload
 
 The API is available at `http://127.0.0.1:8000`; interactive docs are at `/docs`. Copy `.env.example` to `.env` and adjust values as needed. The application reads environment variables directly. By default, uploads and JSON results are stored below `data/`, and file metadata is stored in SQLite.
 
+## Run automated tests
+
+Install the test dependencies and run the unit and integration suite:
+
+```bash
+python -m pip install -e ".[test]"
+python -m pytest -q --durations=10
+```
+
+The tests cover CRS conversion, supported and unsupported geometry, invalid and antimeridian geometries, malformed and unsafe ZIP archives, API status and error behavior, size and feature limits, real Shapefile ZIP ingestion, and pagination over 2,500 features.
+
 ## Endpoints
 
 ### Upload and process

@@ -7,3 +7,9 @@ data/*
 !data/.gitkeep
 .pytest_cache/
 .ruff_cache/
+.testdeps/
+.testdata/
+.pytest-tmp/
+test-profile.pstats
+build/
+*.egg-info/
