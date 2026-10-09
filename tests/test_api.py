@@ -112,3 +112,17 @@ def test_real_shapefile_zip_upload_reads_and_measures(tmp_path):
     assert feature["properties"]["parcel_id"] == 17
     assert feature["measurement_type"] == "area"
     assert 12_000 < feature["measurement_value"] < 13_000
+
+
+def test_real_kml_upload_uses_gdal_driver():
+    kml = b'''<?xml version="1.0" encoding="UTF-8"?>
+<kml xmlns="http://www.opengis.net/kml/2.2"><Document><Placemark><name>test parcel</name>
+<Polygon><outerBoundaryIs><LinearRing><coordinates>0,0 0.001,0 0.001,0.001 0,0.001 0,0</coordinates>
+</LinearRing></outerBoundaryIs></Polygon></Placemark></Document></kml>'''
+    response = client.post("/api/files/", files={"file": ("actual.kml", kml, "application/vnd.google-earth.kml+xml")})
+    assert response.status_code == 201
+    assert response.json()["status"] == "COMPLETED", response.json()
+    assert response.json()["feature_count"] == 1
+    feature = client.get(f"/api/files/{response.json()['id']}/measurements/").json()["features"][0]
+    assert feature["measurement_type"] == "area"
+    assert 12_000 < feature["measurement_value"] < 13_000
