@@ -42,6 +42,9 @@ def measure(geometry_mapping: dict | None, source_crs: str | None) -> dict[str, 
         return {"measurement_type": measure_kind, "measurement_value": None, "measurement_unit": unit,
                 "measurement_crs": None, "warning": "Source CRS is missing; measurement was skipped."}
     src = CRS.from_user_input(source_crs)
+    if not src.is_geographic and not src.is_projected:
+        return {"measurement_type": measure_kind, "measurement_value": None, "measurement_unit": unit,
+                "measurement_crs": None, "warning": "CRS is not a supported geographic or projected CRS."}
     if src.is_geographic:
         geographic = gpd.GeoSeries([geom], crs=src).to_crs("EPSG:4326").iloc[0]
         min_x, _, max_x, _ = geographic.bounds
